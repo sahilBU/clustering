@@ -2,7 +2,7 @@ from collections import defaultdict
 from math import inf
 import random
 import csv
-
+import math
 
 def point_avg(points):
     """
@@ -11,7 +11,12 @@ def point_avg(points):
     
     Returns a new point which is the center of all the points.
     """
-    raise NotImplementedError()
+    length =  len(points)
+    centre = []
+    
+    for point in zip(*points):
+        centre.append(sum(point)/length)
+    return centre
 
 
 def update_centers(data_set, assignments):
@@ -21,7 +26,14 @@ def update_centers(data_set, assignments):
     Compute the center for each of the assigned groups.
     Return `k` centers in a list
     """
-    raise NotImplementedError()
+    centroid = []
+    centre = defaultdict(list)
+    for index, point in zip(assignments,data_set):
+        centre[index].append(point)
+        
+    for key in centre.keys():
+        centroid.append(point_avg(centre[key]))
+    return centroid
 
 
 def assign_points(data_points, centers):
@@ -40,11 +52,11 @@ def assign_points(data_points, centers):
     return assignments
 
 
-def distance(a, b):
+def distance(x, y):
     """
     Returns the Euclidean distance between a and b
     """
-    raise NotImplementedError()
+    return math.sqrt(sum([(a - b) ** 2 for a, b in zip(x, y)]))
 
 
 def generate_k(data_set, k):
@@ -52,15 +64,32 @@ def generate_k(data_set, k):
     Given `data_set`, which is an array of arrays,
     return a random set of k points from the data_set
     """
-    raise NotImplementedError()
+    return random.sample(data_set, k)
 
 
 def get_list_from_dataset_file(dataset_file):
-    raise NotImplementedError()
+    
+    dataset = []
+    with open(dataset_file) as file:
+        csvfile = csv.reader(file)
+        for row in csvfile:
+            datapoint = []
+            for index in range(0,len(row)):
+                datapoint.append(int(row[index]))
+            dataset.append(datapoint)
+    
+    return dataset
 
 
 def cost_function(clustering):
-    raise NotImplementedError()
+    
+    cost =0
+    for key in clustering.keys():
+        values = clustering[key]
+        centre = point_avg(values)
+        for value in values:
+            cost += distance(value, centre)
+    return cost
 
 
 def k_means(dataset_file, k):
